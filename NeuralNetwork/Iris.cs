@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace NeuralNetwork
 {
-    class DataSet
+    class Iris
     {
         double[][] Data;
         double[][] output;
@@ -18,22 +18,18 @@ namespace NeuralNetwork
         public double[][] TestOutput { get; private set; }
         public double[][] LearningOutput { get; private set; }
 
-        public DataSet(string path)
+        public Iris(byte[] file)
         {
-            LoadData(path);
+            LoadData(file);
             Normalize();
             SetData();
         }
 
-        void LoadData(string path)
+        void LoadData(byte[] file)
         {
             try
             {
-                string rawData;
-                using (StreamReader sr = new StreamReader(path))
-                {
-                    rawData = sr.ReadToEnd();
-                }
+                string rawData = System.Text.Encoding.UTF8.GetString(file);
                 //Wywołanie metody pobierającej dane do tablicy
                 GetData(rawData.Split('\n'));
             }

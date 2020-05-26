@@ -8,7 +8,7 @@ namespace NeuralNetwork
         static void Main(string[] args)
         {
             //~~~~~~~~~~~~~~~~~~~~ irisy ~~~~~~~~~~~~~~~~~~~~
-            DataSet Data = new DataSet("...\\...\\iris.data");
+            Iris Data = new Iris(Properties.Resource.iris);
             NeuralNetwork network = new NeuralNetwork(new int[] { 4, 3, 2, 3 });
             network.ShowNetwork();
             int gen = 2500;

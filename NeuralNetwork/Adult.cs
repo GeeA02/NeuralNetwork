@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NeuralNetwork
 {
-    class DataSet2
+    class Adult
     {
         private List<long[]> dataSet;
         private string rawData;
@@ -15,9 +15,9 @@ namespace NeuralNetwork
         public double[][] TestSet { get; private set; }
         public double[][] LearningTest { get; private set; }
         
-        public DataSet2()
+        public Adult()
         {
-            this.LoadData(path);
+            this.LoadData(Properties.Resource.Adult);
             this.ProcessData();
         }
 
@@ -116,14 +116,11 @@ namespace NeuralNetwork
 
         private double MinMax(double value, double min, double max) => (value - min) / (max - min);
 
-        private void LoadData(string path)
+        private void LoadData(byte[] path)
         {
             try
             {
-                using (StreamReader sr = new StreamReader(path))
-                {
-                    this.rawData = sr.ReadToEnd();
-                }
+                this.rawData = Encoding.UTF8.GetString(path);
             }
             catch (Exception)
             {
