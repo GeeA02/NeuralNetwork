@@ -29,14 +29,13 @@ namespace NeuralNetwork
         {
             this.inputs = inputs;
             FeedForward();
-            //zmiana wag w przypadku gdy sieć wpadnie w lokalne minimum
+            //change weights when net stuck in local min
             previousDelta = delta;
             delta = layers[layers.Length - 1].Neurons.Zip(expected, (n, e) => Math.Pow(n.Output - e, 2)).Sum();
             deltaDifference(previousDelta, delta, 5, 0.001);
 
             BackProp(expected);
             FeedForward();
-            //ShowOutput(expected);
         }
 
         void BackProp(double[] expected)
@@ -64,7 +63,7 @@ namespace NeuralNetwork
             {
                 if (deltaDiffCount == count)
                 {
-                    //liczba z przedziału <-0.05, 0.05>
+                    //number from <-0.05, 0.05>
                     double diff = -.05 + .1 * random.NextDouble();
                     foreach (var l in layers)
                         foreach (var n in l.Neurons)
@@ -100,8 +99,6 @@ namespace NeuralNetwork
                     layers[i].Neurons[j].Input = layers[i - 1].Neurons.Select(neuron => neuron.Output * neuron.Weights[j].Value).ToArray().Sum() + layers[i].Neurons[j].Biases;
                     layers[i].Neurons[j].Output = TanH(layers[i].Neurons[j].Input);
                 }
-
-            //ShowOutput(expected);
 
             return delta < 0.2;
         }
@@ -231,7 +228,7 @@ namespace NeuralNetwork
             
             public void InitilizeWeights(Random random)
             {
-                //Rozkład Bottou dla sigmoid a = 2.83
+                //Bottou distribution, sigmoid a = 2.83
                 double min = -(2.83 / Math.Sqrt(outputCount));
                 double max = (2.83 / Math.Sqrt(outputCount));
                 foreach (var neuron in Neurons)
@@ -283,7 +280,6 @@ namespace NeuralNetwork
                     for (int j = 0; j < nextLayer.Gamma.Length; j++)
                             Error[i] += nextLayer.Gamma[j] * Neurons[i].Weights[j].Value;
                     Gamma[i] = Error[i] * DerivativeTanH(Neurons[i].Input);
-                    //Neurons[i].Output * (1 - Neurons[i].Output) to pochodna z sigmoid po wartości wejściowej do neuronu
                 }
 
                 //Caluclating detla weights
