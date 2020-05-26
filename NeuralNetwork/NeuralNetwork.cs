@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace NeuralNetwork
@@ -14,15 +15,11 @@ namespace NeuralNetwork
 
 
         //layer.Lenght == count of layers and every item in array == count of neurons 
-        public NeuralNetwork(int[] layer, params double[][] customWeights)
+        public NeuralNetwork(int[] layer)
         {
             layers = new Layer[layer.Length];
-            if (customWeights.Length != 0) 
-                for (int i = 0; i < layers.Length - 1; i++)
-                    layers[i] = new Layer(layer[i], layer[i + 1], random, customWeights[i]);
-            else
-                for (int i = 0; i < layers.Length - 1; i++)
-                    layers[i] = new Layer(layer[i], layer[i + 1], random);
+            for (int i = 0; i < layers.Length - 1; i++)
+                layers[i] = new Layer(layer[i], layer[i + 1], random); 
             //Last layer
             layers[layers.Length - 1] = new Layer(layer[layer.Length - 1], layer[layer.Length - 1], random);
 
@@ -148,6 +145,55 @@ namespace NeuralNetwork
                     Console.WriteLine($"Output: {neuron.Output} Delta: {delta}");
         }
 
+        public void ExportWeights(string path)
+        {
+            int layersCount = layers.Length;
+            string weights = "";
+            for (int i = 0; i < layersCount - 1; i++)
+            {
+                weights += String.Join(',', layers[i].Neurons.Select(n=>String.Join(',', n.Weights.Select(w => w.Value).ToArray())).ToArray()) + '\n';
+            }
+            File.WriteAllText(path, weights);
+        }
+        public void ExportBiases(string path)
+        {
+            int layersCount = layers.Length;
+            string biases = "";
+            for (int i = 0; i < layersCount; i++)
+                biases += String.Join(',', layers[i].Neurons.Select(n => n.Biases).ToArray()) + '\n';
+            File.WriteAllText(path, biases);
+        }
+
+        public void ImportWeights(string path)
+        {
+            try
+            {
+                string[] weights = File.ReadAllLines(path);
+                for (int i = 0; i < weights.Length - 1; i++)
+                    layers[i].InitilizeCustomWeights(weights[i].Split(',').Select(w => double.Parse(w)).ToArray());
+            }
+            catch
+            {
+                throw new Exception("Can't set custom weights. File format is invalid. ");
+            }
+
+        }
+        public void ImportBiases(string path)
+        {
+            try
+            {
+                string[] biases = File.ReadAllLines(path);
+                double[][] CustomBiases = biases.Select(line => line.Split(',').Select(b => double.Parse(b)).ToArray()).ToArray();
+                for (int i = 0; i < layers.Length; i++)
+                    for (int j = 0; j < layers[i].Neurons.Length; j++)
+                        layers[i].Neurons[j].Biases = CustomBiases[i][j];
+            }
+            catch
+            {
+                throw new Exception("Can't set custom biases. File format is invalid. ");
+            }
+        }
+
         class Layer
         {
             int neuronCount;
@@ -159,7 +205,7 @@ namespace NeuralNetwork
             public double[] Gamma { get; set; }
             public double[] Error { get; set; }
 
-            public Layer(int inputsCount, int outputCount, Random random, params double[] customWeights)
+            public Layer(int inputsCount, int outputCount, Random random)
             {
                 this.eta = 0.05;
                 this.neuronCount = inputsCount;
@@ -180,10 +226,7 @@ namespace NeuralNetwork
                 Gamma = new double[inputsCount];
                 Error = new double[inputsCount];
 
-                if (customWeights.Length == 0)
-                    InitilizeWeights(random);
-                else
-                    InitilizeCustomWeights(customWeights);
+                InitilizeWeights(random);
             }
             
             public void InitilizeWeights(Random random)
@@ -198,10 +241,10 @@ namespace NeuralNetwork
 
             public void InitilizeCustomWeights(double[] custom)
             {
-                int customCount = 0;
+                int customCount = -1;
                 for (int i = 0; i < Neurons.Length; i++)
                     for (int j = 0; j < Neurons[i].Weights.Length; j++)
-                        Neurons[i].Weights[j].Value = custom[customCount++];
+                        Neurons[i].Weights[j].Value = custom[++customCount];
             }
             double DerivativeSigmoid(double value)
             {

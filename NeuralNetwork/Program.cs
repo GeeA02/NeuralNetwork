@@ -11,25 +11,24 @@ namespace NeuralNetwork
             Iris Data = new Iris(Properties.Resource.iris);
             NeuralNetwork network = new NeuralNetwork(new int[] { 4, 3, 2, 3 });
             network.ShowNetwork();
+            //network.ImportBiases("biases.txt");
+            //network.ImportWeights("weights.txt");
             int gen = 2500;
-            for (int i = 0; i < gen; i++)
-            {
-                for (int j = 0; j < Data.LearningData.Length; j++)
-                {
-                    network.Learning(Data.LearningData[j], Data.LearningOutput[j]);
-                }
-            }
+            //for (int i = 0; i < gen; i++)
+            //    for (int j = 0; j < Data.LearningData.Length; j++)
+            //        network.Learning(Data.LearningData[j], Data.LearningOutput[j]);
 
             network.ShowNetwork();
 
             int pass1 = 0;
             for (int i = 0; i < Data.TestData.Length; i++)
-            {
                 if (network.FeedForward(Data.TestData[i], Data.TestOutput[i]))
                     pass1++;
-            }
+
             Console.WriteLine($"All = {Data.TestData.Length}, Correct = {pass1} Procentage = {100 * pass1 / Data.TestData.Length}%");
 
+            network.ExportWeights("weights.txt");
+            network.ExportBiases("biases.txt");
 
             //~~~~~~~~~~~~~~~~~~~~ Adult dataset ~~~~~~~~~~~~~~~~~~~~
             //DataSet2 dataset2 = new DataSet2();
